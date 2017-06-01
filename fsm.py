@@ -1,6 +1,33 @@
 from transitions.extensions import GraphMachine
 
+from parse import get_articles
+from parse import get_web_page
 
+import time
+import numpy
+
+########################parse web for stats##############################
+US_stats = numpy.zeros((30, 3), float)
+US_name = []
+TW_stats = numpy.zeros((4, 3), float)
+TW_name = []
+
+page = get_web_page('https://www.msn.com/zh-tw/sports/mlb/team-stats')
+if page:
+    current_articles = get_articles(page)
+    team = 0
+    index = 0
+    for post in current_articles:
+        if index <3:
+            US_stats[team][index] = float(post)
+        else:
+            US_name.append(post)
+
+        index = (index + 1) % 4
+        if index==0:
+            team = team + 1
+
+#########################################################################
 
 class SportDataMachine(GraphMachine):
     def __init__(self, **machine_configs):
@@ -19,15 +46,14 @@ class SportDataMachine(GraphMachine):
 
     def US_to_US(self, update):
         text = update.message.text
-        return (text!='0' and text!='1' and text!='2')
+        try:
+            return 0 > int(text) or int(text) > 30
+        except ValueError:
+            return 1
 
-    def is_going_to_NYY(self, update):
+    def is_going_to_US_query(self, update):
         text = update.message.text
-        return text=='1'
-    
-    def is_going_to_TEX(self, update):
-        text = update.message.text
-        return text=='2'
+        return 1 <= int(text) and int(text) <= 30 
 
     def is_going_to_JP(self, update):
         text = update.message.text
@@ -35,15 +61,14 @@ class SportDataMachine(GraphMachine):
 
     def JP_to_JP(self, update):
         text = update.message.text
-        return (text!='0' and text!='1' and text!='2')
+        try:
+            return 0 > int(text) or int(text) > 30
+        except ValueError:
+            return 1
 
-    def is_going_to_FIGHTER(self, update):
+    def is_going_to_JP_query(self, update):
         text = update.message.text
-        return text=='1'
-
-    def is_going_to_HAWK(self, update):
-        text = update.message.text
-        return text=='2'
+        return 1 <= int(text) and int(text) <= 30
 
     def is_going_to_TW(self, update):
         text = update.message.text
@@ -51,15 +76,14 @@ class SportDataMachine(GraphMachine):
 
     def TW_to_TW(self, update):
         text = update.message.text
-        return (text!='0' and text!='1' and text!='2')
+        try:
+            return 0 > int(text) or int(text) > 4
+        except ValueError:
+            return 1
 
-    def is_going_to_BROTHER(self, update):
+    def is_going_to_TW_query(self, update):
         text = update.message.text
-        return text=='1'
-
-    def is_going_to_MONKEY(self, update):
-        text = update.message.text
-        return text=='2'
+        return 1 <= int(text) and int(text) <= 4
 
     def is_going_to_where(self, update):
         text = update.message.text
@@ -74,32 +98,27 @@ class SportDataMachine(GraphMachine):
         )
 
     def on_enter_US(self, update):
-        update.message.reply_text(
+        i = 1;
+        text = ( 
             '歡迎來到MLB\n'
             '你可以輸入數字代號\n'
             '查詢各隊伍統計數據\n'
             '0.重新選擇賽區\n'
-            '1.洋基\n'
-            '2.遊騎兵\n'
         )
+        for e in US_name:
+            text = text+str(i)+'.'+e+'\n'
+            i = i + 1
+        update.message.reply_text(text)
 
-    def on_enter_NYY(self, update):
+    def on_enter_US_query(self, update):
+        text = update.message.text
         update.message.reply_text(
-            '紐約洋基\n'
-            '打擊率： .263\n'
-            '上壘率： .343\n'
-            '長打率： .445\n'
+            US_name[int(text)-1]+'\n'
+            '打擊率： '+str(US_stats[int(text)-1][0])+'\n'
+            '上壘率： '+str(US_stats[int(text)-1][1])+'\n'
+            '長打率： '+str(US_stats[int(text)-1][2])+'\n'
         )
         self.go_back_US(update)
-
-    def on_enter_TEX(self, update):
-        update.message.reply_text(
-            '德州遊騎兵\n'
-            '打擊率： .237\n'
-            '上壘率： .311\n'
-            '長打率： .411\n'
-        )
-        self.go_back_US(update) 
 
     def on_enter_JP(self, update):
         update.message.reply_text(
@@ -111,21 +130,12 @@ class SportDataMachine(GraphMachine):
             '2.軟銀\n'
         )
 
-    def on_enter_FIGHTER(self, update):
+    def on_enter_JP_query(self, update):
         update.message.reply_text(
             '日本火腿鬥士\n'
             '打擊率： .263\n'
             '上壘率： .343\n'
             '長打率： .445\n'
-        )
-        self.go_back_JP(update)
-
-    def on_enter_HAWK(self, update):
-        update.message.reply_text(
-            '軟體銀行鷹\n'
-            '打擊率： .237\n'
-            '上壘率： .311\n'
-            '長打率： .411\n'
         )
         self.go_back_JP(update)
 
@@ -139,21 +149,12 @@ class SportDataMachine(GraphMachine):
             '2.桃猿\n'
         )
 
-    def on_enter_BROTHER(self, update):
+    def on_enter_TW_query(self, update):
         update.message.reply_text(
             '中信兄弟\n'
             '打擊率： .298\n'
             '上壘率： .369\n'
             '長打率： .493\n'
-        )
-        self.go_back_TW(update)
-
-    def on_enter_MONKEY(self, update):
-        update.message.reply_text(
-            'Lamigo桃猿\n'
-            '打擊率： .294\n'
-            '上壘率： .357\n'
-            '長打率： .463\n'
         )
         self.go_back_TW(update)
 

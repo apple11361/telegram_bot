@@ -8,7 +8,7 @@ from fsm import SportDataMachine
 
 
 API_TOKEN = '394928478:AAEA7EZ_F7Olghg6Wbdc-LuMsv4VCjXXi18'
-WEBHOOK_URL = 'https://e77a58d1.ngrok.io/hook'
+WEBHOOK_URL = 'https://56790d34.ngrok.io/hook'
 
 
 app = Flask(__name__)
@@ -18,14 +18,11 @@ machine = SportDataMachine(
     states=[
         'where',
         'US',
-        'NYY',
-        'TEX',
+        'US_query',
         'JP',
-        'FIGHTER',
-        'HAWK',
+        'JP_query',
         'TW',
-        'BROTHER',
-        'MONKEY'
+        'TW_query'
     ],
     transitions=[
         {
@@ -61,21 +58,12 @@ machine = SportDataMachine(
         {
             'trigger': 'advance',
             'source': 'US',
-            'dest': 'NYY',
-            'conditions': 'is_going_to_NYY'
-        },
-        {
-            'trigger': 'advance',
-            'source': 'US',
-            'dest': 'TEX',
-            'conditions': 'is_going_to_TEX'
+            'dest': 'US_query',
+            'conditions': 'is_going_to_US_query'
         },
         {
             'trigger': 'go_back_US',
-            'source': [
-                'NYY',
-                'TEX'
-            ],
+            'source': 'US_query',
             'dest': 'US'
         },
         {
@@ -87,21 +75,12 @@ machine = SportDataMachine(
         {
             'trigger': 'advance',
             'source': 'JP',
-            'dest': 'FIGHTER',
-            'conditions': 'is_going_to_FIGHTER'
-        },
-        {
-            'trigger': 'advance',
-            'source': 'JP',
-            'dest': 'HAWK',
-            'conditions': 'is_going_to_HAWK'
+            'dest': 'JP_query',
+            'conditions': 'is_going_to_JP_query'
         },
         {
             'trigger': 'go_back_JP',
-            'source': [
-                'FIGHTER',
-                'HAWK'
-            ],
+            'source': 'JP_query',
             'dest': 'JP'
         },
         {
@@ -113,21 +92,12 @@ machine = SportDataMachine(
         {
             'trigger': 'advance',
             'source': 'TW',
-            'dest': 'BROTHER',
-            'conditions': 'is_going_to_BROTHER'
-        },
-        {
-            'trigger': 'advance',
-            'source': 'TW',
-            'dest': 'MONKEY',
-            'conditions': 'is_going_to_MONKEY'
+            'dest': 'TW_query',
+            'conditions': 'is_going_to_TW_query'
         },
         {
             'trigger': 'go_back_TW',
-            'source': [
-                'BROTHER',
-                'MONKEY'
-            ],
+            'source': 'TW_query',
             'dest': 'TW'
         },
         {
@@ -162,6 +132,12 @@ def webhook_handler():
     machine.advance(update)
     return 'ok'
 
+@app.route('/show-fsm', methods=['GET'])
+def show_fsm():
+    byte_io = BytesIO()
+    machine.graph.draw(byte_io, prog='dot', format='png')
+    byte_io.seek(0)
+    return send_file(byte_io, attachment_filename='fsm.png', mimetype='image/png')
 
 if __name__=="__main__":
     _set_webhook()
