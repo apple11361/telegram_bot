@@ -32,12 +32,16 @@ sudo pip3 install --upgrade pip
 ```
 4.安裝程式相依的module
 ```
-pip3 install -r requirement.txt
+sudo pip3 install -r requirement.txt
 ```
 4-2.沒意外的話，很多人會卡在安裝pygraphviz，這邊會出現一個錯誤，解決方法是
 ```
 sudo apt-get install graphviz graphviz-dev
 sudo pip install pygraphviz --install-option="--include-path='/usr/include/graphviz/'" --install-option="--library-path='/usr/lib/graphviz/'"
+```
+然後繼續安裝剩下的module
+```
+sudo pip3 install -r requirement.txt
 ```
 
 5.準備執行程式，在這之前必須設定兩個程式裡的變數，編輯`app.py`更改兩個變數的內容
