@@ -32,7 +32,7 @@ sudo pip3 install --upgrade pip
 ```
 4.安裝程式相依的module
 ```
-pip3 install -r requirements.txt
+pip3 install -r requirement.txt
 ```
 5.準備執行程式，在這之前必須設定兩個程式裡的變數，編輯`app.py`更改兩個變數的內容
 ```
