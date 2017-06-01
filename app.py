@@ -8,7 +8,7 @@ from fsm import SportDataMachine
 
 
 API_TOKEN = '394928478:AAEA7EZ_F7Olghg6Wbdc-LuMsv4VCjXXi18'
-WEBHOOK_URL = 'https://56790d34.ngrok.io/hook'
+WEBHOOK_URL = 'https://fe5c4807.ngrok.io/hook'
 
 
 app = Flask(__name__)
