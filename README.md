@@ -26,7 +26,7 @@ sudo apt-get install python3-all
 ```
 sudo apt-get install python3-pip
 ```
-3.有些人執行上面指令後安裝的pip3不是最新版的，所以在安裝某些module的時候會失敗，解決的方法是必須升級pip3
+3.有些人在安裝某些module的時候會失敗，解決的方法是執行
 ```
 sudo pip3 install --upgrade pip
 ```
